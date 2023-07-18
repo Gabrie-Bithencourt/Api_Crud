@@ -5,10 +5,10 @@ include('User.php');
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
 
-
 // Remova a parte da URI após o ponto de interrogação, se houver
 if (($pos = strpos($uri, '?')) !== false) {
     $uri = substr($uri, 0, $pos);
+   
 }
 
 $uri = str_replace($_SERVER['SCRIPT_NAME'],"",$uri);
@@ -31,8 +31,9 @@ if (isset($endpoints[$uri]) && isset($endpoints[$uri][$method])) {
     echo json_encode($response);
 } else {
     // Endpoint não encontrado
-    header("HTTP/1.1 404 Not Found");
+    http_response_code(404);
     echo "Endpoint não encontrado.";
+    return;
 }
 
 
@@ -40,8 +41,16 @@ function createUser(){
     // Parametro true no json_encode para o conteudo ser um array associativo
     // ao inves de um objeto //
     $campos_required = ['email','senha'];
-    $dados_request = json_decode(file_get_contents('php://input'),true);
-    $indices = array_keys($dados_request);
+    $data = file_get_contents('php://input');
+
+    if(empty($data) || is_null($data)){
+        http_response_code(400);
+        return "os campos [".implode(" - ",$campos_required)."] sao obrigatorios!";
+    }
+
+    $dados_request = json_decode($data,true);
+    $indices =  array_keys($dados_request);
+
     $dados_user = [];
     $falta_info = [];
 
@@ -55,7 +64,8 @@ function createUser(){
     });
 
     if(!empty($falta_info)){
-        return "Erro - Falta info 400 dos campos: ".implode(" - ",$falta_info);
+        http_response_code(400);
+        return "os campos [".implode(" - ",$campos_required)."] sao obrigatorios!";
     }
 
     // Criando  User //
@@ -66,13 +76,11 @@ function createUser(){
 }
 
 function getUsers(){
-    $conexao  = conectar();
 
-    $sql = "SELECT * FROM users";
-    $inst = $conexao->query($sql);
-    $resultado = $inst->fetchAll();
+    $user = new User();
+    $response = $user->getUsers();
 
-    return $resultado;
+    return $response;
 }
 
 

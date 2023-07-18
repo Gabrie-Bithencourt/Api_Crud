@@ -45,6 +45,53 @@ class User {
 
     }
 
+    public function getUsers(){
+
+        $users = null;
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
+
+        try {
+
+            if(!is_null($id)){
+                $sql = "SELECT id,nome,email FROM users WHERE id = :id";
+                $query = $this->conexao->prepare($sql);
+                $query->bindParam(":id",$id);
+    
+            }else{
+                $sql = "SELECT id,nome,email FROM users";
+                $query = $this->conexao->prepare($sql);
+                
+            }
+
+            if($query->execute()){
+                $users = $query->fetchAll(PDO::FETCH_ASSOC);
+                
+                if(empty($users)){
+                    $users = "Nenhum Usuario cadastrado!!";
+                }
+
+                http_response_code(200);
+                return $users;
+
+            }else{
+                throw new Exception(500);
+                
+            }
+          
+        } catch (\PDOException $exception) {
+                http_response_code(500);
+                return $exception->getMessage();
+
+        } catch (\Exception $exception) {
+                http_response_code(500);
+                return $exception->getMessage();
+
+        } finally {
+            $this->conexao = null;
+        }
+
+    }
+
 
 
 }
