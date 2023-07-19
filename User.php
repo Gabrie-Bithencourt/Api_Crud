@@ -48,7 +48,7 @@ class User {
     public function getUsers(){
 
         $users = null;
-        $id = isset($_GET['id']) ? $_GET['id'] : null;
+        $id = isset($_GET['id']) && !empty($_GET['id']) ? $_GET['id'] : null;
 
         try {
 
@@ -89,6 +89,46 @@ class User {
         } finally {
             $this->conexao = null;
         }
+
+    }
+
+    function deleteUsers(){
+
+        $id = isset($_GET['id']) && !empty($_GET['id']) ? $_GET['id'] : null;
+
+        try {
+            
+            if(!is_null($id) && is_numeric($id)){
+
+                $sql = "DELETE FROM users WHERE id = :id";
+                $query = $this->conexao->prepare($sql);
+                $query->bindParam(':id',$id);
+
+                if($query->execute()){
+                    http_response_code(200);
+                    return "Usuario Excluido com sucesso!!";
+
+                }else{
+                    throw new Exception(500);
+                    
+                }
+
+
+            }else{
+                http_response_code(400);   
+                return "ID enviado nao existe!!";
+            }
+
+
+
+        } catch (\Exception $exception) {
+                    return $exception->getMessage();
+
+        } finally{
+            $this->conexao = null;
+        }
+
+
 
     }
 
