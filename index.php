@@ -20,6 +20,7 @@ $endpoints = array(
     'users' => array(
         'GET' => 'getUsers',
         'POST' => 'createUser',
+        'DELETE' => 'deleteUser'
     )
 );
 
@@ -81,6 +82,14 @@ function getUsers(){
     $response = $user->getUsers();
 
     return $response;
+}
+
+function deleteUser(){
+
+    $user = new User();
+    $response = $user->deleteUsers();
+    return $response;
+
 }
 
 
