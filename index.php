@@ -20,7 +20,9 @@ $endpoints = array(
     'users' => array(
         'GET' => 'getUsers',
         'POST' => 'createUser',
-        'DELETE' => 'deleteUser'
+        'DELETE' => 'deleteUser',
+        'PUT' => 'putUsers',
+        'PATCH' => 'patchUsers'
     )
 );
 
@@ -92,6 +94,70 @@ function deleteUser(){
 
 }
 
+function putUsers(){
+
+    $data = file_get_contents('php://input');
+
+    if(empty($data) || is_null($data)){
+        http_response_code(400);
+        return "Necessario informar os campos e os valores a serem atualizados!!";
+    }
+
+    $data = json_decode($data, true);
+
+    $dados_user_update = [];
+    $dados_user_update['email'] = isset($data['email']) ? trim($data['email']) : "";
+    $dados_user_update['nome'] = isset($data['nome']) ? trim($data['nome']) : "";
+    $dados_user_update['senha'] = isset($data['senha']) ? md5(trim($data['senha'])) : "";
+
+
+    $user = new User();
+    $response = $user->putUsers($dados_user_update);
+
+    return $response;
+
+}
+
+function patchUsers(){
+
+    $data = file_get_contents('php://input');
+
+    if(empty($data) || is_null($data)){
+        http_response_code(400);
+        return "Necessario informar ao menos um campo para os valores serem atualizados!!";
+    }
+
+    $data = json_decode($data, true);
+    $campos_update = array_keys($data);
+
+    $campos = ['nome','email','senha'];
+    $dados_update = [];
+
+    for ($i=0; $i < count($campos_update) ; $i++) { 
+
+        if(in_array($campos_update[$i],$campos)){
+            if($campos_update[$i] == "email" || $campos_update[$i] == "nome"){
+                $dados_update[$campos_update[$i]] = "'".$data[$campos_update[$i]]."'";
+            }else{
+                $dados_update[$campos_update[$i]] = "'".md5($data[$campos_update[$i]])."'";
+            }
+
+        }
+        
+    }
+
+    if(empty($dados_update) || is_null($dados_update)){
+        http_response_code(400);
+        return "Campos dos usuarios sao: [".implode(" - ",$campos)."]";
+    }
+
+    $user = new User();
+    $response = $user->patchUsers($dados_update);
+
+    return $response;
+
+
+}
 
 
 ?>
