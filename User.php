@@ -83,7 +83,6 @@ class User {
                 return $exception->getMessage();
 
         } catch (\Exception $exception) {
-                http_response_code(500);
                 return $exception->getMessage();
 
         } finally {
@@ -119,7 +118,9 @@ class User {
                 return "ID enviado nao existe!!";
             }
 
-
+        } catch (\PDOException $exception) {
+                    http_response_code(500);
+                    return $exception->getMessage();
 
         } catch (\Exception $exception) {
                     return $exception->getMessage();
@@ -129,6 +130,102 @@ class User {
         }
 
 
+
+    }
+
+    function putUsers($dados_update){
+
+        $id = isset($_GET['id']) && !empty($_GET['id']) ? $_GET['id'] : null;
+
+            try {
+
+                if(!is_null($id) && is_numeric($id)){
+
+                    $sql = "UPDATE users SET nome = :nome, email = :email, senha = :senha WHERE id = :id";
+                    $query = $this->conexao->prepare($sql);
+                    $query->bindParam(':id',$id);
+                    $query->bindParam(':email',$dados_update['email']);
+                    $query->bindParam(':senha',$dados_update['senha']);
+                    $query->bindParam(':nome',$dados_update['nome']);
+        
+                    if($query->execute()){
+                        http_response_code(200);
+                        return "User atualizado com sucesso!!";
+        
+                    }else{
+                        http_response_code(500);
+                        throw new Exception(500);
+                    }
+    
+    
+                }else{
+                        http_response_code(400);   
+                        return "ID enviado nao existe!!";
+                    }
+
+            } catch (\PDOException $exception) {
+                    http_response_code(500);
+                    return $exception->getMessage();
+
+            } catch(\Exception $exception){
+                    return $exception->getMessage();
+
+            } finally{
+                $this->conexao = null;
+            }
+
+    }
+
+    function patchUsers($dados_update){
+
+        $id = isset($_GET['id']) && !empty($_GET['id']) ? $_GET['id'] : null;
+
+        try {
+            
+            if(!is_null($id) && is_numeric($id)){
+
+                $parametro = "";
+                foreach ($dados_update as $key => $value) {
+                    
+                    if(end($dados_update) === $value){
+                        $parametro .= " ".$key." = ".$value;
+                    
+                    }else{
+                        $parametro .= " ".$key." = ".$value.",";
+                    }
+                    
+                }
+
+                $sql = "UPDATE users SET ".$parametro." WHERE id = :id";
+                $query = $this->conexao->prepare($sql);
+                $query->bindParam(':id',$id);
+
+                if($query->execute()){
+                    http_response_code(200);
+                    return "Dados atualizados com sucesso!!";
+
+                }else{
+                    http_response_code(500);
+                    throw new Exception(500);
+                }
+               
+
+            }else{
+                http_response_code(400);   
+                return "ID enviado nao existe!!";
+            }
+
+
+        } catch (\PDOException $exception) {
+                 http_response_code(500);
+                 return $exception->getMessage();
+
+        } catch(\Exception $exception){
+                 return $exception->getMessage();
+
+        } finally{
+             $this->conexao = null;
+        }
 
     }
 
