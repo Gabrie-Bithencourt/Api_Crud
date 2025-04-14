@@ -1,5 +1,5 @@
 # Api_Crud Restful PHP PURO
-Criando uma cadastro de usuario usando a arquitetura RESTFul. Meu intuito e colocar em pratica meus estudos sobre API. Criei endpoinst para todas as funcionalidades de um crudÇ insert, delete, update, select
+Criando uma cadastro de usuario usando a arquitetura RESTFul. Meu intuito e colocar em pratica meus estudos sobre API. Criei endpoinst para todas as funcionalidades de um CRUD padrão: insert, delete, update, select
 
 #Endpoints:
 
